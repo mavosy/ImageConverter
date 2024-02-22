@@ -1,0 +1,32 @@
+﻿<Window x:Class="ImageToGrayscale.Views.ITGView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ImageToGrayscale"
+        xmlns:vm="clr-namespace:ImageToGrayscale.ViewModels"
+        d:DataContext="{d:DesignInstance {x:Type vm:ITGViewModel}}"  
+        mc:Ignorable="d"
+        Title="Image To Greyscale" Height="450" Width="350">
+
+    <Grid>
+        <Label Content="Original image" HorizontalAlignment="Left" Margin="50,0,0,0" VerticalAlignment="Top"/>
+        <Border BorderBrush="Gray" BorderThickness="1" Margin="20,25,180,260">
+            <Image Source="{Binding OriginalImage}" Stretch="Uniform" />
+        </Border>
+
+        <Label Content="Converted image" HorizontalAlignment="Left" Margin="211,0,0,0" VerticalAlignment="Top"/>
+        <Border BorderBrush="Gray" BorderThickness="1" Margin="180,25,20,260">
+            <Image Source="{Binding ConvertedImage}" Stretch="Uniform" />
+        </Border>
+
+        <Label Content="Convert image to greyscale!" HorizontalAlignment="Center" Margin="0,175,0,0" VerticalAlignment="Top" />
+        <CheckBox Content="Use Parallel processing" IsChecked="{Binding UseParallelization}"  HorizontalAlignment="Center" Margin="0,206,0,0" VerticalAlignment="Top" />
+
+        <Button Content="Choose image" Command="{Binding ChooseImageCommand}" HorizontalAlignment="Center" Margin="0,229,0,0" VerticalAlignment="Top" Height="28" Width="94"/>
+        <TextBlock Text="{Binding SelectedImagePath}" TextAlignment="Center" HorizontalAlignment="Center" Margin="0,265,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="311"/>
+        
+        <Button Content="Convert image" Command="{Binding ConvertImageCommand}" HorizontalAlignment="Center" Margin="0,310,0,0" VerticalAlignment="Top" Height="28" Width="94"/>
+        <Button Content="Save Converted Image" Command="{Binding SaveImageCommand}" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,350,0,0" Height="28" Width="140"/>
+    </Grid>
+</Window>
