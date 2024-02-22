@@ -1,11 +1,13 @@
-﻿using System.Diagnostics;
+﻿using ImageToGrayscale.Models;
+using ImageToGrayscale.Services.Interfaces;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace ImageToGrayscale.Models
+namespace ImageToGrayscale.Services
 {
-    public class ImageProcessor
+    public class ImageProcessor : IImageProcessor
     {
         private int _bytesPerPixel, _redOffset, _greenOffset, _blueOffset;
 
@@ -31,7 +33,7 @@ namespace ImageToGrayscale.Models
             }
         }
 
-        public ConversionResult ConvertToGrayscaleSequential(BitmapImage originalImage)
+        public ConversionResultDTO ConvertToGrayscaleSequential(BitmapImage originalImage)
         {
             SetPixelFormatValues(originalImage.Format);
             WriteableBitmap writableOriginal = new WriteableBitmap(originalImage);
@@ -73,14 +75,14 @@ namespace ImageToGrayscale.Models
             writableOriginal.Unlock();
             grayscaleImage.Unlock();
 
-            return new ConversionResult
+            return new ConversionResultDTO
             {
                 ConvertedImage = grayscaleImage,
                 TimeTaken = stopwatch.ElapsedMilliseconds
             };
         }
 
-        public ConversionResult ConvertToGrayscaleParallel(BitmapImage originalImage)
+        public ConversionResultDTO ConvertToGrayscaleParallel(BitmapImage originalImage)
         {
             SetPixelFormatValues(originalImage.Format);
             WriteableBitmap writableOriginal = new WriteableBitmap(originalImage);
@@ -117,7 +119,7 @@ namespace ImageToGrayscale.Models
                 grayscaleImage.WritePixels(new Int32Rect(0, 0, width, height), grayscalePixels, width, 0);
             });
 
-            return new ConversionResult
+            return new ConversionResultDTO
             {
                 ConvertedImage = grayscaleImage,
                 TimeTaken = stopwatch.ElapsedMilliseconds
