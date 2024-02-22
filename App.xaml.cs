@@ -1,4 +1,5 @@
-﻿using ImageToGrayscale.Models;
+﻿using ImageToGrayscale.Services;
+using ImageToGrayscale.Services.Interfaces;
 using ImageToGrayscale.ViewModels;
 using ImageToGrayscale.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,8 +23,11 @@ namespace ImageToGrayscale
 
         private void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<ImageProcessor>();
             services.AddTransient<ITGViewModel>();
+            services.AddTransient<IImageProcessor, ImageProcessor>();
+            services.AddTransient<IDialogService, DialogService>();
+            services.AddTransient<IFileProcessingService, FileProcessingService>();
+            services.AddTransient<IMessageService, MessageService>();
         }
 
         protected override void OnStartup(StartupEventArgs e)

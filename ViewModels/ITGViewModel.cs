@@ -1,10 +1,8 @@
 ﻿using ImageToGrayscale.Commands;
 using ImageToGrayscale.Models;
-using Microsoft.Win32;
+using ImageToGrayscale.Services.Interfaces;
 using PropertyChanged;
 using System.Diagnostics;
-using System.IO;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -13,12 +11,18 @@ namespace ImageToGrayscale.ViewModels
 {
     public class ITGViewModel : BaseViewModel
     {
-        private readonly ImageProcessor _imageProcessor;
+        private readonly IImageProcessor _imageProcessor;
+        private readonly IDialogService _dialogService;
+        private readonly IFileProcessingService _fileProcessingService;
+        private readonly IMessageService _messageService;
         private readonly HashSet<PixelFormat> _allowedColorFormats = new() { PixelFormats.Bgr32, PixelFormats.Bgra32, PixelFormats.Pbgra32, PixelFormats.Rgb24 };
 
-        public ITGViewModel(ImageProcessor imageProcessor)
+        public ITGViewModel(IImageProcessor imageProcessor, IDialogService dialogService, IFileProcessingService fileProcessingService, IMessageService messageService)
         {
             _imageProcessor = imageProcessor ?? throw new ArgumentNullException(nameof(imageProcessor));
+            _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+            _fileProcessingService = fileProcessingService ?? throw new ArgumentNullException(nameof(fileProcessingService));
+            _messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
         }
 
         [DependsOn(nameof(SelectedImagePath))]
@@ -38,12 +42,12 @@ namespace ImageToGrayscale.ViewModels
 
         private void LoadImage()
         {
-            string filePath = OpenFileDialog("Image files (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png");
+            string filePath = _dialogService.OpenFileDialog("Image files (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png");
             if (!string.IsNullOrEmpty(filePath))
             {
                 SelectedImagePath = filePath;
-                DisplayOriginalImage();
                 ResetConvertedImage();
+                DisplayOriginalImage();
             }
         }
 
@@ -53,50 +57,28 @@ namespace ImageToGrayscale.ViewModels
             if (!_allowedColorFormats.Contains(originalImage.Format))
             {
                 Debug.WriteLine("Unsupported color format");
+                _messageService.ShowMessage("Unsupported color format", MessageType.Warning);
                 return;
             }
 
-            ConversionResult result = UseParallelization
+            ConversionResultDTO result = UseParallelization
                 ? _imageProcessor.ConvertToGrayscaleParallel(originalImage)
                 : _imageProcessor.ConvertToGrayscaleSequential(originalImage);
 
             ConvertedImage = result.ConvertedImage;
-            MessageBox.Show($"The conversion took {result.TimeTaken} milliseconds");
+            _messageService.ShowMessage($"The conversion took {result.TimeTaken} milliseconds", MessageType.Information);
         }
 
         private void SaveImage()
         {
-            string filePath = SaveFileDialog("JPEG Image|*.jpg|PNG Image|*.png");
+            string filePath = _dialogService.SaveFileDialog("JPEG Image|*.jpg|PNG Image|*.png");
             if (!string.IsNullOrEmpty(filePath))
             {
-                SaveImageToFile(filePath);
+                _fileProcessingService.WritableBitmapToFile(ConvertedImage, filePath);
             }
         }
 
-        private string OpenFileDialog(string filter)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog { Filter = filter };
-            return openFileDialog.ShowDialog() == true ? openFileDialog.FileName : null;
-        }
-
-        private string SaveFileDialog(string filter)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog { Filter = filter };
-            return saveFileDialog.ShowDialog() == true ? saveFileDialog.FileName : null;
-        }
-
-        private void SaveImageToFile(string filePath)
-        {
-            BitmapEncoder encoder = filePath.EndsWith(".png") ? new PngBitmapEncoder() : new JpegBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(ConvertedImage));
-
-            using (FileStream file = File.OpenWrite(filePath))
-            {
-                encoder.Save(file);
-            }
-        }
-
-        private void DisplayOriginalImage() => OriginalImage = new BitmapImage(new Uri(SelectedImagePath, UriKind.RelativeOrAbsolute));
+        private void DisplayOriginalImage() => OriginalImage = _fileProcessingService.FileToBitmapImage(SelectedImagePath);
         private void ResetConvertedImage() => ConvertedImage = null;
 
         private void ExecuteSafeAction(Action action)
@@ -105,10 +87,11 @@ namespace ImageToGrayscale.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"Operation error: {ex.Message}");
-                MessageBox.Show(
+                _messageService.ShowMessage(
                     $"Three things are certain: \n" +
                     $"Death, taxes and lost data.\n" +
-                    $"Guess which has occured.");
+                    $"Guess which has occured.",
+                    MessageType.Error);
             }
         }
     }
