@@ -9,6 +9,10 @@ namespace ImageToGrayscale.Services
 {
     public class ImageProcessor : IImageProcessor
     {
+        // colorimetric weighted multipliers, correcting for human vision
+        private const double redWeightedMultiplier = 0.2126;
+        private const double greenWeightedMultiplier = 0.7152;
+        private const double blueWeightedMultiplier = 0.0722;
         private int _bytesPerPixel, _redOffset, _greenOffset, _blueOffset;
 
         private void SetPixelFormatValues(PixelFormat pixelFormat)
@@ -39,10 +43,10 @@ namespace ImageToGrayscale.Services
             WriteableBitmap writableOriginal = new WriteableBitmap(originalImage);
             WriteableBitmap grayscaleImage = new WriteableBitmap(originalImage.PixelWidth, originalImage.PixelHeight, originalImage.DpiX, originalImage.DpiY, PixelFormats.Gray8, null);
 
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             grayscaleImage.Lock();
             writableOriginal.Lock();
-
-            Stopwatch stopwatch = Stopwatch.StartNew();
 
             unsafe
             {
@@ -62,7 +66,7 @@ namespace ImageToGrayscale.Services
                         byte green = pixel[_greenOffset];
                         byte red = pixel[_redOffset];
 
-                        byte grayValue = (byte)(red * 0.3 + green * 0.59 + blue * 0.11);
+                        byte grayValue = (byte)(red * redWeightedMultiplier + green * greenWeightedMultiplier + blue * blueWeightedMultiplier);
 
                         grayBuffer[y * grayStride + x] = grayValue;
                     }
@@ -70,10 +74,10 @@ namespace ImageToGrayscale.Services
                 grayscaleImage.AddDirtyRect(new Int32Rect(0, 0, grayscaleImage.PixelWidth, grayscaleImage.PixelHeight));
             }
 
-            stopwatch.Stop();
-
             writableOriginal.Unlock();
             grayscaleImage.Unlock();
+
+            stopwatch.Stop();
 
             return new ConversionResultDTO
             {
@@ -104,12 +108,10 @@ namespace ImageToGrayscale.Services
                     byte blue = originalPixels[index + _blueOffset];
                     byte green = originalPixels[index + _greenOffset];
                     byte red = originalPixels[index + _redOffset];
-                    byte grayValue = (byte)(red * 0.3 + green * 0.59 + blue * 0.11);
+                    byte grayValue = (byte)(red * redWeightedMultiplier + green * greenWeightedMultiplier + blue * blueWeightedMultiplier);
                     grayscalePixels[y * width + x] = grayValue;
                 }
             });
-
-            stopwatch.Stop();
 
             WriteableBitmap grayscaleImage = null;
 
@@ -118,6 +120,8 @@ namespace ImageToGrayscale.Services
                 grayscaleImage = new WriteableBitmap(width, height, originalImage.DpiX, originalImage.DpiY, PixelFormats.Gray8, null);
                 grayscaleImage.WritePixels(new Int32Rect(0, 0, width, height), grayscalePixels, width, 0);
             });
+
+            stopwatch.Stop();
 
             return new ConversionResultDTO
             {
