@@ -60,6 +60,7 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
+
 <div align="center">
 
 ![product_image][product-screenshot]
