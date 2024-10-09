@@ -60,8 +60,10 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
+<div align="center">
 
-<!-- [![Product Name Screen Shot][product-screenshot]](https://example.com) -->
+![product_image][product-screenshot]
+</div>
 
 **ImageConverter** is a WPF application built using the MVVM design pattern. It allows users to upload an image, convert it to grayscale, and save the result. Users can choose between sequential and parallel processing modes:
 
@@ -186,7 +188,7 @@ Project Link: [https://github.com/mavosy/ImageConverter](https://github.com/mavo
 [license-url]: https://github.com/mavosy/ImageConverter/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/malte-von-sydow
-[product-screenshot]: images/screenshot.png
+[product-screenshot]: Images/ITGscreenshot.png
 [csharp-shield]: https://custom-icon-badges.demolab.com/badge/C%23-%23239120.svg?logo=cshrp&logoColor=white
 [csharp-url]: https://learn.microsoft.com/en-us/dotnet/csharp/
 [wpf-shield]: https://img.shields.io/badge/WPF-512BD4?style=for-the-badge&logo=windows&logoColor=white
