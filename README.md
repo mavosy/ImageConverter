@@ -61,14 +61,16 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-<div align="center">
-  <img src="Images/ITGscreenshot.png" alt="Product Screenshot" width="300" />
-</div>
-
 **ImageConverter** is a WPF application built using the MVVM design pattern. It allows users to upload an image, convert it to grayscale, and save the result. Users can choose between sequential and parallel processing modes:
 
 - **Sequential Processing**: Uses pointers for performance.
 - **Parallel Processing**: Parallel execution to utilize multiple cores.
+
+<br/>
+
+<div align="center">
+  <img src="Images/ITGscreenshot.png" alt="Product Screenshot" width="300" />
+</div>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
